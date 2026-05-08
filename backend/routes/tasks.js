@@ -6,8 +6,8 @@ const authMiddleware = require(’../middleware/auth’); // déjà fait en Fonc
 // — Middleware de validation —
 const validateTask = (req, res, next) => {
 const { title, priority, status } = req.body;
-const validPriorities = [‘basse’, ‘moyenne’, ‘haute’];
-const validStatuses  = [‘à faire’, ‘en cours’, ‘terminé’];
+const validPriorities = [‘low’, ‘medium’, ‘high’];
+const validStatuses  = [‘todo’, ‘inprogress’, ‘done’];
 
 if (!title || title.trim() === ‘’) {
 return res.status(400).json({ message: ‘Le titre est obligatoire’ });
@@ -100,7 +100,7 @@ res.status(500).json({ message: err.message });
 // — PATCH statut uniquement —
 // PATCH /api/tasks/:id/status
 router.patch(’/:id/status’, authMiddleware, async (req, res) => {
-const validStatuses = [‘à faire’, ‘en cours’, ‘terminé’];
+const validStatuses = [‘todo’, ‘in progress’, ‘done’];
 const { status } = req.body;
 
 if (!status || !validStatuses.includes(status)) {

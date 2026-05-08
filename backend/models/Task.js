@@ -13,13 +13,13 @@ trim: true,
 },
 priority: {
 type: String,
-enum: [‘basse’, ‘moyenne’, ‘haute’],
+enum: [‘low’, ‘medium’, ‘hight’],
 required: [true, ‘La priorité est obligatoire’],
 },
 status: {
 type: String,
-enum: [‘à faire’, ‘en cours’, ‘terminé’],
-default: ‘à faire’,
+enum: [‘todo’, ‘in progress’, ‘done’],
+default: ‘todo’,
 },
 dueDate: {
 type: Date,
