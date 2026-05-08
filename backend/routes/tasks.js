@@ -25,7 +25,8 @@ next();
 // GET /api/projects/:id/tasks
 router.get(’/projects/:id/tasks’, authMiddleware, async (req, res) => {
 try {
-const tasks = await Task.find({ project: req.params.id });
+const tasks = await Task.find({ project: req.params.id})
+      .populate("assignedTo" ,"name email");
 res.json(tasks);
 } catch (err) {
 res.status(500).json({ message: err.message });
