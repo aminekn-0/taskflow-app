@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <!-- for TaskFlow i logo -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="login.css">
     <title>Login & Signup - TaskFlow</title>
@@ -18,7 +17,6 @@
                 <span>TaskFlow</span>
             </div>
 
-            <!-- LOGIN FORM CONTAINER -->
             <div id="loginContainer" class="form-container active">
                 <h1>Login</h1>
                 <div class="sub-message">
@@ -26,7 +24,6 @@
                 </div>
             </div>
 
-            <!-- SIGNUP FORM CONTAINER -->
             <div id="signupContainer" class="form-container">
                 <h1>Signup</h1>
                 <div class="sub-message">
@@ -37,16 +34,16 @@
 
         <!-- LOGIN FORM -->
         <div id="loginFormContainer" class="form-container active">
-            <form id="loginForm" action="#" method="post">
+            <form id="loginForm" method="post">
                 <div class="input-group">
-                    <label class="input-label" for="username">Username</label>
-                    <input type="text" id="username" name="username" class="input-field"
-                        placeholder="johndoe or email@example.com" autocomplete="username">
+                    <label class="input-label" for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" name="loginEmail" class="input-field"
+                        placeholder="hello@example.com" autocomplete="email">
                 </div>
                 <div class="input-group">
-                    <label class="input-label" for="password">Password</label>
-                    <input type="password" id="password" name="password" class="input-field" placeholder="••••••••"
-                        autocomplete="current-password">
+                    <label class="input-label" for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="loginPassword" class="input-field"
+                        placeholder="••••••••" autocomplete="current-password">
                 </div>
                 <div class="show-password-wrapper">
                     <input type="checkbox" id="showLoginPassword" class="show-password-checkbox">
@@ -60,16 +57,16 @@
                         <input type="checkbox" id="rememberCheckbox" name="remember">
                         <span>Remember Me</span>
                     </label>
-                    <a id="forgotPasswordLink" class="forgot-link">Forgot Password</a>
+                    <a id="forgotPasswordLink" class="forgot-link">Forgot Password?</a>
                 </div>
 
-                <button type="submit" class="auth-btn" id="loginSubmitBtn">Get Started →</button>
+                <button type="submit" class="auth-btn" id="loginSubmitBtn">Login →</button>
             </form>
         </div>
 
         <!-- SIGNUP FORM -->
         <div id="signupFormContainer" class="form-container">
-            <form id="signupForm" action="#" method="post">
+            <form id="signupForm" method="post">
                 <div class="input-group">
                     <label class="input-label" for="signupName">Full Name</label>
                     <input type="text" id="signupName" name="signupName" class="input-field" placeholder="John Doe"
@@ -110,7 +107,6 @@
             </form>
         </div>
 
-        <!-- SWITCH PROMPT (visible on both) -->
         <div id="switchPromptLogin" class="switch-prompt">
             <div class="switch-text">New to TaskFlow?</div>
             <button class="switch-btn" id="goToSignupBtn">
@@ -125,13 +121,11 @@
             </button>
         </div>
 
-        <!-- demo message -->
         <div class="demo-message" id="demoInfo">
-            ⚡ demo: any credentials • visual feedback only
+            💡 Connect to the real backend
         </div>
     </div>
 
-    <!-- ## FrontEnd JavaScript## -->
     <script src="login.js"></script>
 </body>
 
