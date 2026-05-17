@@ -1,3 +1,5 @@
+const notificationRoutes = require("./routes/notificationRoutes");
+
 const express = require("express");
 
 const projectRoutes = require("./routes/projectRoutes");
@@ -10,5 +12,6 @@ app.use(express.json());
 
 // routes
 app.use("/api/projects", projectRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 module.exports = app;
