@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const User = require('../../models/User');
-const { protect } = require('../../middlewares/auth');
+const User = require('../models/User');
+const { protect } = require('../middlewares/auth');
 
 // Helper function to generate JWT token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRE,
+        expiresIn: process.env.JWT_EXPIRE || '7d',
     });
 };
 
@@ -58,8 +58,10 @@ router.post('/register', async (req, res) => {
             user: {
                 id: user._id,
                 fullName: user.fullName,
+                name: user.fullName, // For dashboard compatibility
                 email: user.email,
             },
+            redirectTo: '/dashboard',
             message: 'User created successfully',
         });
     } catch (error) {
@@ -115,8 +117,10 @@ router.post('/login', async (req, res) => {
             user: {
                 id: user._id,
                 fullName: user.fullName,
+                name: user.fullName, // For dashboard compatibility
                 email: user.email,
             },
+            redirectTo: '/dashboard',
             message: 'Login successful',
         });
     } catch (error) {
@@ -135,7 +139,12 @@ router.get('/me', protect, async (req, res) => {
     try {
         res.status(200).json({
             success: true,
-            user: req.user,
+            user: {
+                id: req.user._id,
+                fullName: req.user.fullName,
+                name: req.user.fullName,
+                email: req.user.email,
+            },
         });
     } catch (error) {
         console.error('Get me error:', error);
@@ -146,14 +155,29 @@ router.get('/me', protect, async (req, res) => {
     }
 });
 
-// @route   POST /api/auth/verify-token
+// @route   GET /api/auth/verify-token
 // @desc    Verify if token is valid
 // @access  Private
 router.get('/verify-token', protect, async (req, res) => {
     res.status(200).json({
         success: true,
         message: 'Token is valid',
-        user: req.user,
+        user: {
+            id: req.user._id,
+            fullName: req.user.fullName,
+            name: req.user.fullName,
+            email: req.user.email,
+        },
+    });
+});
+
+// @route   POST /api/auth/logout
+// @desc    Logout user (client-side only, but endpoint for completeness)
+// @access  Private
+router.post('/logout', protect, async (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'Logged out successfully',
     });
 });
 

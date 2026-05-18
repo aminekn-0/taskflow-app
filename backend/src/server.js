@@ -1,64 +1,47 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
-
-// Load environment variables
-dotenv.config();
-
-// Import configurations
-const connectDB = require('./config/db');
+const cookieParser = require('cookie-parser');
+require('dotenv').config();
 
 // Import routes
 const authRoutes = require('./routes/auth');
 
-// Initialize express
 const app = express();
 
-// Connect to MongoDB
-connectDB();
-
-// Middleware
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:80',
-    credentials: true,
-}));
+// Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Cookie parser
+app.use(cookieParser());
+
+// CORS configuration
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// Mount routes
 app.use('/api/auth', authRoutes);
 
-// Health check route
-app.get('/api/health', (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: 'Server is running',
-        timestamp: new Date().toISOString(),
-    });
+// Root route
+app.get('/', (req, res) => {
+    res.json({ message: 'TaskFlow API is running' });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'Route not found',
-    });
-});
-
-// Global error handler
-app.use((err, req, res, next) => {
-    console.error('Global error:', err);
-    res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-    });
-});
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected'))
+.catch((err) => console.error('MongoDB connection error:', err));
 
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📡 API available at http://localhost:${PORT}`);
-    console.log(`🔗 CORS enabled for ${process.env.FRONTEND_URL}`);
+    console.log(`Server running on port ${PORT}`);
 });
