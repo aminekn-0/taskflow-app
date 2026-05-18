@@ -6,6 +6,7 @@ require('dotenv').config();
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const dashboardRoutes = require('./routes/dashboard'); // ADD THIS
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(cors({
 
 // Mount routes
 app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', dashboardRoutes); // ADD THIS
 
 // Root route
 app.get('/', (req, res) => {
