@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="assign.css" />
+  <title>TaskFlow - Assign Tasks</title>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">
+      <i class="fa-solid fa-layer-group"></i>
+      <span>TaskFlow</span>
+    </div>
+    <button id="logoutBtn">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </nav>
+
+  <div class="container">
+
+```
+<!-- Assign task to member -->
+<div class="card">
+  <h2><i class="fa-solid fa-user-plus"></i> Assign Task</h2>
+
+  <label>Select Task</label>
+  <select id="taskSelect">
+    <option value="">-- Select a task --</option>
+  </select>
+
+  <label>Assign To</label>
+  <select id="memberSelect">
+    <option value="">-- Select a member --</option>
+  </select>
+
+  <button id="assignBtn">Assign →</button>
+</div>
+
+<!-- My assigned tasks -->
+<div class="card">
+  <h2><i class="fa-solid fa-list-check"></i> My Assigned Tasks</h2>
+  <div id="myTaskList"></div>
+</div>
+```
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <script src="assign.js"></script>
+
+</body>
+</html>
