@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tasks.html</title>
+    <link rel="stylesheet" href="tasks.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+</head>
+<body>
+
+   
+     <nav class="navbar">
+
+    <!-- Logo -->
+    <div class="logo">
+      <i class="fa-solid fa-layer-group"></i>
+      <span>TaskFlow</span>
+    </div>
+
+    <!-- Navigation Links -->
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="tasks.html">Tasks</a></li>
+      <li><a href="activities.html">Activities</a></li>
+      <li><a href="members.html">Members</a></li>
+    </ul>
+
+    <!-- Right Section -->
+    <div class="right-section">
+
+      <!-- Notification Bell -->
+      <div class="notification">
+        <i class="fa-solid fa-bell"></i>
+        <div class="badge">3</div>
+      </div>
+
+      <!-- Profile Circle -->
+      <div class="profile">
+        A
+      </div>
+
+    </div>
+</nav>
+
+
+<div class="tasks-container">
+    
+    <section class="toolbar">
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="taskSearch" placeholder="Search by title or description...">
+        </div>
+
+        <div class="filters-wrapper">
+            <select id="filterStatus" class="filter-select">
+                <option value="all">All Status</option>
+                <option value="todo">To Do</option>
+                <option value="inprogress">In Progress</option>
+                <option value="done">Done</option>
+            </select>
+
+            <select id="filterPriority" class="filter-select">
+                <option value="all">All Priorities</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+
+            <button id="clearFilters" class="btn-secondary">Reset</button>
+        </div>
+    </section>
+
+    <div id="taskList" class="task-list-grid">
+        <p class="empty-msg">No tasks found.</p>
+    </div>
+
+    <nav class="pagination-container">
+        <button id="prevPage" class="btn-pag" disabled>Previous</button>
+        <div id="pageNumbers" class="page-numbers">
+            <span class="page-link active">1</span>
+            <span class="page-link">2</span>
+            <span class="page-link">3</span>
+        </div>
+        <button id="nextPage" class="btn-pag">Next</button>
+    </nav>
+</div>
+
+
+
+    
+   <script src="tasks.js"></script> 
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow Navbar</title>
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f6f9;
+    }
+
+    .navbar {
+      width: 100%;
+      height: 70px;
+      background-color: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .logo i {
+      color: #38bdf8;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .nav-links li a {
+      text-decoration: none;
+      color: white;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    .nav-links li a:hover {
+      color: #38bdf8;
+    }
+
+    .right-section {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+
+    .notification {
+      position: relative;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .badge {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background-color: red;
+      color: white;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #1e293b;
+      cursor: pointer;
+    }
+
+    /* PAGE */
+
+    .container{
+      width:90%;
+      margin:40px auto;
+    }
+
+    .title{
+      margin-bottom:30px;
+      color:#1e293b;
+    }
+
+    /* ACTIVITY CARD */
+
+    .activity-card{
+      background:white;
+      padding:20px;
+      border-radius:12px;
+      margin-bottom:20px;
+      display:flex;
+      align-items:flex-start;
+      gap:15px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+      transition:0.3s;
+    }
+
+    .activity-card:hover{
+      transform:translateY(-3px);
+    }
+
+    .activity-icon{
+      width:50px;
+      height:50px;
+      border-radius:50%;
+      background:#dbeafe;
+      color:#2563eb;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:20px;
+      flex-shrink: 0;
+    }
+
+    .activity-content h3{
+      margin-bottom:5px;
+      color:#111827;
+    }
+
+    .activity-content p{
+      color:#6b7280;
+      margin-bottom:8px;
+    }
+
+    .time{
+      font-size:14px;
+      color:#9ca3af;
+    }
+
+    /* STATE MESSAGES */
+
+    .state-msg {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 16px;
+      padding: 60px 0;
+    }
+
+    .state-msg i {
+      font-size: 40px;
+      margin-bottom: 12px;
+      display: block;
+      color: #d1d5db;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+
+    <!-- Logo -->
+    <div class="logo">
+      <i class="fa-solid fa-layer-group"></i>
+      <span>TaskFlow</span>
+    </div>
+
+    <!-- Navigation Links -->
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="tasks.html">Tasks</a></li>
+      <li><a href="activities.html">Activities</a></li>
+      <li><a href="members.html">Members</a></li>
+    </ul>
+
+    <!-- Right Section -->
+    <div class="right-section">
+
+      <!-- Notification Bell -->
+      <div class="notification">
+        <i class="fa-solid fa-bell"></i>
+        <div class="badge">3</div>
+      </div>
+
+      <!-- Profile Circle -->
+      <div class="profile">
+        A
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- PAGE CONTENT -->
+
+  <div class="container">
+
+    <h1 class="title">Project Activities</h1>
+
+    <div id="activity-list">
+      <div class="state-msg">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Loading activities...
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:5000/api';
+
+    // Get projectId from URL: activities.html?projectId=xxx
+    const projectId = new URLSearchParams(window.location.search).get('projectId');
+
+    // Attach JWT to every Axios request
+    axios.interceptors.request.use(config => {
+      const token = localStorage.getItem('token');
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+      return config;
+    });
+
+    // Icons per action type
+    const ICONS = {
+      task_created:        'fa-plus',
+      task_deleted:        'fa-trash',
+      task_status_changed: 'fa-pen',
+      member_added:        'fa-user-plus',
+      member_removed:      'fa-user-minus',
+      project_updated:     'fa-pencil',
+    };
+
+    // Human-readable label per action type
+    function buildLabel(activity) {
+      const who  = activity.user?.fullName || 'Someone';
+      const meta = activity.meta || {};
+
+      switch (activity.actionType) {
+        case 'task_created':
+          return {
+            title: `${who} created a new task`,
+            detail: `Task: ${meta.taskTitle || '—'}`
+          };
+        case 'task_deleted':
+          return {
+            title: `${who} deleted a task`,
+            detail: `Task: ${meta.taskTitle || '—'}`
+          };
+        case 'task_status_changed':
+          return {
+            title: `${who} changed task status`,
+            detail: meta.oldStatus && meta.newStatus
+              ? `"${meta.taskTitle}" moved from ${meta.oldStatus} to ${meta.newStatus}`
+              : `Task: ${meta.taskTitle || '—'}`
+          };
+        case 'member_added':
+          return {
+            title: `${who} added a member`,
+            detail: 'New member joined the project'
+          };
+        case 'member_removed':
+          return {
+            title: `${who} removed a member`,
+            detail: 'Member was removed from the project'
+          };
+        case 'project_updated':
+          return {
+            title: `${who} updated the project`,
+            detail: meta.title ? `Project: ${meta.title}` : 'Project details were modified'
+          };
+        default:
+          return { title: `${who} performed an action`, detail: '' };
+      }
+    }
+
+    function timeAgo(dateStr) {
+      const diff  = Date.now() - new Date(dateStr).getTime();
+      const mins  = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days  = Math.floor(diff / 86400000);
+      if (mins  < 1)  return 'Just now';
+      if (mins  < 60) return `${mins} minute${mins > 1 ? 's' : ''} ago`;
+      if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    }
+
+    function renderCard(activity) {
+      const icon         = ICONS[activity.actionType] || 'fa-circle-dot';
+      const { title, detail } = buildLabel(activity);
+
+      return `
+        <div class="activity-card">
+          <div class="activity-icon">
+            <i class="fa-solid ${icon}"></i>
+          </div>
+          <div class="activity-content">
+            <h3>${title}</h3>
+            <p>${detail}</p>
+            <span class="time">${timeAgo(activity.createdAt)}</span>
+          </div>
+        </div>`;
+    }
+
+    async function loadActivities() {
+      const list = document.getElementById('activity-list');
+
+      if (!projectId) {
+        list.innerHTML = `
+          <div class="state-msg">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            No project ID found in URL.<br>
+            Open this page as: <strong>activities.html?projectId=YOUR_ID</strong>
+          </div>`;
+        return;
+      }
+
+      try {
+        const { data } = await axios.get(`${API_BASE}/projects/${projectId}/activities`);
+
+        if (!data.length) {
+          list.innerHTML = `
+            <div class="state-msg">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              No activities recorded yet for this project.
+            </div>`;
+          return;
+        }
+
+        list.innerHTML = data.map(renderCard).join('');
+      } catch (err) {
+        const msg = err.response?.data?.message || err.message;
+        list.innerHTML = `
+          <div class="state-msg">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            Error loading activities: ${msg}
+          </div>`;
+      }
+    }
+
+    loadActivities();
+  </script>
+
+</body>
+</html>
