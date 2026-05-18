@@ -2,144 +2,152 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: ‘Inter’, system-ui, -apple-system, ‘Segoe UI’, Roboto, Helvetica, sans-serif;
-  }
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, sans-serif;
+}
 
 body {
-background: linear-gradient(145deg, #f0f4fe 0%, #e9eef8 100%);
-min-height: 100vh;
-color: #0a1c3a;
+  background: linear-gradient(145deg, #f0f4fe 0%, #e9eef8 100%);
+  min-height: 100vh;
+  color: #0a1c3a;
 }
 
 nav {
-background-color: #0a1c3a;
-color: white;
-padding: 15px 30px;
-display: flex;
-justify-content: space-between;
-align-items: center;
+  background-color: #0a1c3a;
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 nav h1 {
-font-size: 1.5rem;
-font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .logo {
-display: flex;
-align-items: center;
-gap: 10px;
-font-size: 1.3rem;
-font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
 .logo i {
-color: #38bdf8;
+  color: #38bdf8;
 }
 
 nav button {
-background: white;
-color: #0a1c3a;
-border: none;
-padding: 8px 16px;
-border-radius: 2rem;
-cursor: pointer;
-font-weight: 600;
+  background: white;
+  color: #0a1c3a;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 2rem;
+  cursor: pointer;
+  font-weight: 600;
 }
 
 nav button:hover {
-background: #f0f4fe;
+  background: #f0f4fe;
 }
 
 .container {
-max-width: 800px;
-margin: 30px auto;
-padding: 0 20px;
-display: flex;
-flex-direction: column;
-gap: 20px;
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .card {
-background: #ffffff;
-border-radius: 2.5rem;
-padding: 25px;
-box-shadow: 0 25px 45px -12px rgba(0,0,0,0.25), 0 8px 18px rgba(0,0,0,0.05);
+  background: #ffffff;
+  border-radius: 2.5rem;
+  padding: 25px;
+  box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 8px 18px rgba(0, 0, 0, 0.05);
 }
 
 .card h2 {
-margin-bottom: 15px;
-color: #0a1c3a;
-font-size: 1.3rem;
-font-weight: 700;
+  margin-bottom: 15px;
+  color: #0a1c3a;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
 label {
-display: block;
-font-size: 0.85rem;
-font-weight: 600;
-color: #1e2f44;
-margin-bottom: 5px;
-margin-top: 10px;
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e2f44;
+  margin-bottom: 5px;
+  margin-top: 10px;
 }
 
 select {
-width: 100%;
-padding: 0.9rem 1.1rem;
-margin-bottom: 10px;
-border: 1.5px solid #e2e8f0;
-border-radius: 1.2rem;
-font-size: 0.95rem;
-background-color: #f9fafc;
-color: #0a1c3a;
-outline: none;
-font-family: inherit;
+  width: 100%;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 1.2rem;
+  font-size: 0.95rem;
+  background-color: #f9fafc;
+  color: #0a1c3a;
+  outline: none;
+  font-family: inherit;
 }
 
 select:focus {
-border-color: #2e5ea7;
-background-color: #ffffff;
-box-shadow: 0 0 0 4px rgba(46, 94, 167, 0.12);
+  border-color: #2e5ea7;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(46, 94, 167, 0.12);
 }
 
 button#assignBtn {
-background-color: #0a1c3a;
-color: white;
-border: none;
-padding: 0.9rem 1rem;
-border-radius: 2rem;
-cursor: pointer;
-font-size: 1rem;
-font-weight: 700;
-width: 100%;
-margin-top: 10px;
-transition: all 0.25s ease;
+  background-color: #0a1c3a;
+  color: white;
+  border: none;
+  padding: 0.9rem 1rem;
+  border-radius: 2rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  width: 100%;
+  margin-top: 10px;
+  transition: all 0.25s ease;
 }
 
 button#assignBtn:hover {
-background: #12315e;
-transform: scale(0.98);
+  background: #12315e;
+  transform: scale(0.98);
 }
 
 .task-item {
-border: 1.5px solid #e2e8f0;
-border-radius: 1.2rem;
-padding: 15px;
-margin-bottom: 10px;
-background: #f9fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 1.2rem;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: #f9fafc;
 }
 
 .task-item h3 {
-font-size: 1rem;
-color: #0a1c3a;
-margin-bottom: 5px;
+  font-size: 1rem;
+  color: #0a1c3a;
+  margin-bottom: 5px;
 }
 
 .task-item span {
-font-size: 0.85rem;
-color: #5b6e8c;
+  font-size: 0.85rem;
+  color: #5b6e8c;
 }
 
-.priority-low    { border-left: 4px solid #22c55e; }
-.priority-medium { border-left: 4px solid #f59e0b; }
-.priority-high   { border-left: 4px solid #ef4444; }
+.priority-low {
+  border-left: 4px solid #22c55e;
+}
+
+.priority-medium {
+  border-left: 4px solid #f59e0b;
+}
+
+.priority-high {
+  border-left: 4px solid #ef4444;
+}
