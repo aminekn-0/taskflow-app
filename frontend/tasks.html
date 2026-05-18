@@ -3,22 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks Page</title>
+    <title>TaskFlow - Tasks</title>
     <link rel="stylesheet" href="tasks.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
 
-   
-     <nav class="navbar">
-
-    <!-- Logo -->
+  <nav class="navbar">
     <div class="logo">
       <i class="fa-solid fa-layer-group"></i>
       <span>TaskFlow</span>
     </div>
-
-    <!-- Navigation Links -->
     <ul class="nav-links">
       <li><a href="dashboard.html">Dashboard</a></li>
       <li><a href="projects.html">Projects</a></li>
@@ -26,70 +21,77 @@
       <li><a href="activities.html">Activities</a></li>
       <li><a href="members.html">Members</a></li>
     </ul>
-
-    <!-- Right Section -->
     <div class="right-section">
-
-      <!-- Notification Bell -->
       <div class="notification">
         <i class="fa-solid fa-bell"></i>
         <div class="badge">3</div>
       </div>
-
-      <!-- Profile Circle -->
-      <div class="profile">
-        A
-      </div>
-
+      <div class="profile">A</div>
+      <button class="logout-btn" id="logoutBtn">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
     </div>
-</nav>
+  </nav>
 
+  <div class="tasks-container">
 
-<div class="tasks-container">
-    
+    <!-- Add Task Form -->
+    <div class="card">
+      <h2><i class="fa-solid fa-plus"></i> Add New Task</h2>
+      <input type="text" id="taskTitle" placeholder="Task title" />
+      <textarea id="taskDesc" placeholder="Description (optional)"></textarea>
+      <select id="taskPriority">
+        <option value="">-- Priority --</option>
+        <option value="low">🟢 Low</option>
+        <option value="medium">🟡 Medium</option>
+        <option value="high">🔴 High</option>
+      </select>
+      <input type="date" id="taskDueDate" />
+      <button id="addTaskBtn">Add Task →</button>
+    </div>
+
+    <!-- Search & Filter -->
     <section class="toolbar">
-        <div class="search-wrapper">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="taskSearch" placeholder="Search by title or description...">
-        </div>
-
-        <div class="filters-wrapper">
-            <select id="filterStatus" class="filter-select">
-                <option value="all">All Status</option>
-                <option value="todo">To Do</option>
-                <option value="inprogress">In Progress</option>
-                <option value="done">Done</option>
-            </select>
-
-            <select id="filterPriority" class="filter-select">
-                <option value="all">All Priorities</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-            </select>
-
-            <button id="clearFilters" class="btn-secondary">Reset</button>
-        </div>
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="taskSearch" placeholder="Search by title or description...">
+      </div>
+      <div class="filters-wrapper">
+        <select id="filterStatus" class="filter-select">
+          <option value="all">All Status</option>
+          <option value="todo">To Do</option>
+          <option value="in progress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+        <select id="filterPriority" class="filter-select">
+          <option value="all">All Priorities</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <button id="clearFilters" class="btn-secondary">Reset</button>
+      </div>
     </section>
 
+    <!-- Task List -->
     <div id="taskList" class="task-list-grid">
-        <p class="empty-msg">No tasks found.</p>
+      <p class="empty-msg">No tasks found.</p>
     </div>
 
+    <!-- Pagination -->
     <nav class="pagination-container">
-        <button id="prevPage" class="btn-pag" disabled>Previous</button>
-        <div id="pageNumbers" class="page-numbers">
-            <span class="page-link active">1</span>
-            <span class="page-link">2</span>
-            <span class="page-link">3</span>
-        </div>
-        <button id="nextPage" class="btn-pag">Next</button>
+      <button id="prevPage" class="btn-pag" disabled>Previous</button>
+      <div id="pageNumbers" class="page-numbers">
+        <span class="page-link active">1</span>
+        <span class="page-link">2</span>
+        <span class="page-link">3</span>
+      </div>
+      <button id="nextPage" class="btn-pag">Next</button>
     </nav>
-</div>
 
+  </div>
 
-
-    
-   <script src="tasks.js"></script> 
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="tasks.js"></script>
 </body>
 </html>
