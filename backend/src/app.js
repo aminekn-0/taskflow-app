@@ -1,3 +1,5 @@
+const notificationRoutes = require("./routes/notificationRoutes");
+
 const express = require("express");
 const cors = require("cors");
 
@@ -6,6 +8,8 @@ const dashboardRoutes = require("./routes/dashboard.routes");
 
 const activityRoutes = require("./routes/activityRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+
+const activityRoutes = require("./routes/activityRoutes");
 
 const app = express();
 

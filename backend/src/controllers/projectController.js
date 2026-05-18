@@ -1,4 +1,5 @@
 const Project = require("../models/Project");
+const { logActivity } = require("./activityController");
 
 /**
  * POST /api/projects
@@ -65,6 +66,7 @@ const updateProject = async (req, res) => {
       return res.status(404).json({ message: "Projet introuvable" });
     }
 
+    await logActivity("project_updated", project._id, req.user.id, { title: project.title });
     res.json(project);
   } catch (error) {
     res.status(500).json({ message: error.message });
