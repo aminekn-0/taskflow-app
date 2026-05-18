@@ -7,6 +7,7 @@ const authMiddleware = require("../middleware/auth"); // déjà fait en Fonction
 const validateTask = (req, res, next) => {
   const { title, priority, status } = req.body;
   const validPriorities = ["low", "medium", "high"];
+  const validStatuses = ["todo", "inprogress", "done"];
   const validStatuses = ["todo", "inprogres", "done"];
 
   if (!title || title.trim() === "") {
@@ -21,7 +22,7 @@ const validateTask = (req, res, next) => {
   next();
 };
 
-// — GET toutes les tâches d’un projet —
+// — GET toutes les tâches d"un projet —
 // GET /api/projects/:id/tasks
 router.get("/projects/:id/tasks", authMiddleware, async (req, res) => {
   try {
@@ -118,6 +119,16 @@ router.patch("/:id/status", authMiddleware, async (req, res) => {
     res.json(task);
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+});// GET tâches assignées à l'utilisateur connecté
+// GET /api/tasks/my-tasks
+router.get('/my-tasks', authMiddleware, async (req, res) => {
+  try {
+    const tasks = await Task.find({ assignedTo: req.user.id })
+      .populate('assignedTo', 'name email');
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 module.exports = router;
