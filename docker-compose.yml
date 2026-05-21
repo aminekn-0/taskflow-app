@@ -1,5 +1,4 @@
-version: "29.4.2"
-
+version: "3.8"
 services:
   mongodb:
     image: mongo:6
@@ -12,7 +11,6 @@ services:
     networks:
       - taskflow-network
     command: mongod --quiet --logpath /dev/null
-
   backend:
     build: ./backend
     container_name: taskflow-backend
@@ -30,7 +28,6 @@ services:
       - mongodb
     networks:
       - taskflow-network
-
   frontend:
     build: ./frontend
     container_name: taskflow-frontend
@@ -41,24 +38,8 @@ services:
       - backend
     networks:
       - taskflow-network
-
 networks:
   taskflow-network:
     driver: bridge
-
 volumes:
   mongodb_data:
-version: "3.8"
-
-services:
-  mongo:
-    image: mongo:6
-    container_name: taskflow-mongo
-    restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-volumes:
-  mongo_data:
