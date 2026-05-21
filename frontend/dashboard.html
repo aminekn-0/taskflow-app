@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>TaskFlow Dashboard</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../css/dashboard.css" />
+
+  <!-- Axios -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+
+    <h1 class="logo">TaskFlow</h1>
+
+    <button class="logout-btn" onclick="logout()">
+      Logout
+    </button>
+
+  </nav>
+
+
+  <!-- Dashboard -->
+  <main class="dashboard-container">
+
+    <h2>Mon Tableau de Bord</h2>
+
+    <!-- Statistics -->
+    <section class="stats-container">
+
+      <div class="stat-card">
+        <h3 id="projectsCount">0</h3>
+        <p>Projets actifs</p>
+      </div>
+
+      <div class="stat-card">
+        <h3 id="tasksCount">0</h3>
+        <p>Tâches assignées</p>
+      </div>
+
+      <div class="stat-card">
+        <h3 id="completedCount">0</h3>
+        <p>Tâches terminées</p>
+      </div>
+
+      <div class="stat-card">
+        <h3 id="overdueCount">0</h3>
+        <p>Tâches en retard</p>
+      </div>
+
+    </section>
+
+
+    <!-- Tasks -->
+    <section class="tasks-section">
+
+      <div class="section-header">
+        <h2>Mes Tâches</h2>
+      </div>
+
+      <div id="tasksContainer" class="tasks-container">
+
+        <!-- Les tâches seront ajoutées ici dynamiquement -->
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- JS -->
+  <script src="../js/dashboard.js"></script>
+
+</body>
+</html>
