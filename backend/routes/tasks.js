@@ -8,7 +8,7 @@ const validateTask = (req, res, next) => {
   const { title, priority, status } = req.body;
   const validPriorities = ["low", "medium", "high"];
   const validStatuses = ["todo", "inprogress", "done"];
-  const validStatuses = ["todo", "inprogres", "done"];
+  
 
   if (!title || title.trim() === "") {
     return res.status(400).json({ message: "Le titre est obligatoire" });
