@@ -209,3 +209,11 @@ router.get('/stats', protect, async (req, res) => {
 });
 
 module.exports = router;
+const express = require("express");
+const router = express.Router();
+const authMiddleware = require("../middleware/auth.middleware");
+const { getDashboard } = require("../controllers/dashboard.controller");
+
+router.get("/dashboard", authMiddleware, getDashboard);
+
+module.exports = router;

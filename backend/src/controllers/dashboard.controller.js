@@ -1,0 +1,116 @@
+const Project = require("../models/Project");
+const Task = require("../models/Task");
+
+const getDashboard = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // =========================
+    // 1. Active projects count
+    // =========================
+    const activeProjectsAgg = await Project.aggregate([
+      {
+        $match: {
+          owner: userId,
+          status: "actif",
+        },
+      },
+      {
+        $count: "activeProjects",
+      },
+    ]);
+
+    const activeProjects =
+      activeProjectsAgg.length > 0 ? activeProjectsAgg[0].activeProjects : 0;
+
+    // =========================
+    // 2. Tasks assigned to user
+    // =========================
+    const assignedTasksAgg = await Task.aggregate([
+      {
+        $match: {
+          assignedTo: userId,
+        },
+      },
+      {
+        $count: "assignedTasks",
+      },
+    ]);
+
+    const assignedTasks =
+      assignedTasksAgg.length > 0 ? assignedTasksAgg[0].assignedTasks : 0;
+
+    // =========================
+    // 3. Completed tasks
+    // =========================
+    const completedTasksAgg = await Task.aggregate([
+      {
+        $match: {
+          assignedTo: userId,
+          status: "terminé",
+        },
+      },
+      {
+        $count: "completedTasks",
+      },
+    ]);
+
+    const completedTasks =
+      completedTasksAgg.length > 0 ? completedTasksAgg[0].completedTasks : 0;
+
+    // =========================
+    // 4. Overdue tasks
+    // =========================
+    const overdueTasksAgg = await Task.aggregate([
+      {
+        $match: {
+          assignedTo: userId,
+          status: { $ne: "terminé" },
+          deadline: { $lt: new Date() },
+        },
+      },
+      {
+        $count: "overdueTasks",
+      },
+    ]);
+
+    const overdueTasks =
+      overdueTasksAgg.length > 0 ? overdueTasksAgg[0].overdueTasks : 0;
+
+    // =========================
+    // 5. Tasks in progress (sorted)
+    // =========================
+    const tasksInProgress = await Task.aggregate([
+      {
+        $match: {
+          assignedTo: userId,
+          status: "en cours",
+        },
+      },
+      {
+        $sort: {
+          priority: -1, // haute > moyenne > basse (depends on your enum ordering)
+          deadline: 1,
+        },
+      },
+    ]);
+
+    // =========================
+    // RESPONSE
+    // =========================
+    res.json({
+      activeProjects,
+      assignedTasks,
+      completedTasks,
+      overdueTasks,
+      tasksInProgress,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error loading dashboard",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = { getDashboard };
