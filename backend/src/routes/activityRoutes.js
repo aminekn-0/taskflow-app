@@ -1,12 +1,12 @@
 const express = require("express");
-const authMiddleware = require("../middlewares/authMiddleware");
+const { protect } = require("../middlewares/auth"); // FIX: was '../middlewares/authMiddleware'
 const { getActivities } = require("../controllers/activityController");
 
-const router = express.Router({ mergeParams: true }); // needed to access :id from parent
+const router = express.Router({ mergeParams: true });
 
 /**
  * GET /api/projects/:id/activities
  */
-router.get("/", authMiddleware, getActivities);
+router.get("/", protect, getActivities);
 
 module.exports = router;

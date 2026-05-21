@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
 const User = require('../models/User');
-const authMiddleware = require('../middleware/auth');
+const authMiddleware = require('../middleware/auth.middleware'); // FIX: was '../middleware/auth'
 
 // Invite member by email (owner only)
 router.post('/projects/:projectId/members', authMiddleware, async (req, res) => {
@@ -27,8 +27,7 @@ router.post('/projects/:projectId/members', authMiddleware, async (req, res) => 
         project.members.push(userToAdd._id);
         await project.save();
 
-        // Populate member details for response
-        await project.populate('members', 'name email');
+        await project.populate('members', 'fullName email');
         res.status(200).json({ message: 'Membre ajouté', members: project.members });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -46,7 +45,7 @@ router.delete('/projects/:projectId/members/:memberId', authMiddleware, async (r
 
         project.members = project.members.filter(m => m.toString() !== req.params.memberId);
         await project.save();
-        await project.populate('members', 'name email');
+        await project.populate('members', 'fullName email');
         res.status(200).json({ message: 'Membre retiré', members: project.members });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -57,8 +56,8 @@ router.delete('/projects/:projectId/members/:memberId', authMiddleware, async (r
 router.get('/projects/:projectId/members', authMiddleware, async (req, res) => {
     try {
         const project = await Project.findById(req.params.projectId)
-            .populate('owner', 'name email')
-            .populate('members', 'name email');
+            .populate('owner', 'fullName email')
+            .populate('members', 'fullName email');
 
         if (!project) return res.status(404).json({ message: 'Projet non trouvé' });
 

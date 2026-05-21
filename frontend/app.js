@@ -3,7 +3,11 @@
  * Handles login + dashboard rendering via a single Axios call to GET /api/dashboard
  */
 
-const API_BASE = 'http://localhost:5000/api';
+// Use relative path so nginx can proxy to backend in Docker.
+// For local development without Docker, keep http://localhost:5000/api
+const API_BASE = window.location.port === '80' || window.location.port === ''
+  ? '/api'
+  : 'http://localhost:5000/api';
 
 // ──────────────────────────────────────────────
 // Helpers

@@ -1,6 +1,6 @@
-const API = "http://localhost:5000/api";
+const API = (window.location.port === '80' || window.location.port === '') ? '/api' : 'http://localhost:5000/api';
 const projectId = localStorage.getItem("currentProjectId");
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("tf_token"); // FIX: was "token", app.js uses "tf_token"
 
 if (!token) window.location.href = "index.html";
 
@@ -147,15 +147,15 @@ document.getElementById("filterStatus").addEventListener("change", applyFilters)
 document.getElementById("filterPriority").addEventListener("change", applyFilters);
 
 document.getElementById("clearFilters").addEventListener("click", () => {
-  document.getElementById("taskSearch").value    = "";
-  document.getElementById("filterStatus").value  = "all";
+  document.getElementById("taskSearch").value     = "";
+  document.getElementById("filterStatus").value   = "all";
   document.getElementById("filterPriority").value = "all";
   applyFilters();
 });
 
 // — Logout —
 document.getElementById("logoutBtn").addEventListener("click", () => {
-  localStorage.removeItem("token");
+  localStorage.removeItem("tf_token");
   window.location.href = "index.html";
 });
 

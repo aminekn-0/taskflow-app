@@ -1,6 +1,6 @@
-const API = "http://localhost:5000/api";
+const API = (window.location.port === '80' || window.location.port === '') ? '/api' : 'http://localhost:5000/api';
 const projectId = localStorage.getItem("currentProjectId");
-const token = localStorage.getItem("token");
+const token = localStorage.getItem("tf_token"); // FIX: was "token"
 
 // Redirect if not logged in
 if (!token) window.location.href = "index.html";
@@ -30,10 +30,16 @@ async function loadMembers() {
         const res = await axios.get(`${API}/projects/${projectId}/members`, { headers });
         const memberSelect = document.getElementById("memberSelect");
         memberSelect.innerHTML = "<option value=\"\">– Select a member –</option>";
-        res.data.forEach(member => {
+
+        // FIX: API returns { owner, members } not a plain array
+        const allMembers = [];
+        if (res.data.owner) allMembers.push(res.data.owner);
+        if (res.data.members) allMembers.push(...res.data.members);
+
+        allMembers.forEach(member => {
             const option = document.createElement("option");
             option.value = member._id;
-            option.textContent = `${member.name} (${member.email})`;
+            option.textContent = `${member.fullName || member.name || member.email} (${member.email})`;
             memberSelect.appendChild(option);
         });
     } catch (err) {
@@ -48,42 +54,42 @@ async function loadMyTasks() {
         const myTaskList = document.getElementById("myTaskList");
         myTaskList.innerHTML = "";
 
-if (res.data.length === 0) {
-  myTaskList.innerHTML = "<p style=\"color:#5b6e8c\">No tasks assigned to you.</p>";
-  return;
-}
+        if (res.data.length === 0) {
+            myTaskList.innerHTML = "<p style=\"color:#5b6e8c\">No tasks assigned to you.</p>";
+            return;
+        }
 
-
-res.data.forEach(task => {
-  const div = document.createElement("div");
-  div.className = `task - item priority - ${ task.priority } `;
-  div.innerHTML = `
-            < h3 > ${ task.title }</h3 >
-    <span>Priority: ${task.priority} | Status: ${task.status}</span><br/>
-    <span>Assigned to: ${task.assignedTo ? task.assignedTo.name : "N/A"}</span>
-        `;
-  myTaskList.appendChild(div);
-});
-
+        res.data.forEach(task => {
+            const div = document.createElement("div");
+            // FIX: removed spaces inside class name and template literal
+            div.className = `task-item priority-${task.priority}`;
+            div.innerHTML = `
+                <h3>${task.title}</h3>
+                <span>Priority: ${task.priority} | Status: ${task.status}</span><br/>
+                <span>Assigned to: ${task.assignedTo ? (task.assignedTo.fullName || task.assignedTo.name || task.assignedTo.email) : "N/A"}</span>
+            `;
+            myTaskList.appendChild(div);
+        });
 
     } catch (err) {
         console.error(err);
     }
 }
+
 // — Assign task to member —
 document.getElementById("assignBtn").addEventListener("click", async () => {
-    const taskId = document.getElementById("taskSelect").value;
+    const taskId   = document.getElementById("taskSelect").value;
     const memberId = document.getElementById("memberSelect").value;
 
     if (!taskId || !memberId) {
         alert("Please select a task and a member.");
-return;
+        return;
     }
 
     try {
         await axios.put(`${API}/tasks/${taskId}`, { assignedTo: memberId }, { headers });
         alert("Task assigned successfully!");
-loadMyTasks();
+        loadMyTasks();
     } catch (err) {
         alert(err.response?.data?.message || "Error assigning task");
     }
@@ -91,7 +97,7 @@ loadMyTasks();
 
 // — Logout —
 document.getElementById("logoutBtn").addEventListener("click", () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("tf_token"); // FIX: was "token"
     window.location.href = "index.html";
 });
 

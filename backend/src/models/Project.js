@@ -18,7 +18,13 @@ const projectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true
-    }
+    },
+
+    // FIX: members field was missing — referenced throughout the codebase
+    members: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }]
   },
   { timestamps: true }
 );

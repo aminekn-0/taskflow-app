@@ -11,22 +11,15 @@ router.get('/', protect, async (req, res) => {
     try {
         const userId = req.user._id;
 
-        // Get all projects where user is either owner or member
         const userProjects = await Project.find({
-            $or: [
-                { owner: userId },
-                { members: userId }
-            ]
+            $or: [{ owner: userId }, { members: userId }]
         }).select('_id');
 
         const projectIds = userProjects.map(p => p._id);
 
         // 1. Number of active projects
         const activeProjects = await Project.countDocuments({
-            $or: [
-                { owner: userId },
-                { members: userId }
-            ],
+            $or: [{ owner: userId }, { members: userId }],
             status: 'actif'
         });
 
@@ -39,7 +32,7 @@ router.get('/', protect, async (req, res) => {
         // 3. Number of completed tasks assigned to user
         const completedTasks = await Task.countDocuments({
             assignedTo: userId,
-            status: 'terminé',
+            status: 'done',             // FIX: was 'terminé'
             project: { $in: projectIds }
         });
 
@@ -47,25 +40,22 @@ router.get('/', protect, async (req, res) => {
         const currentDate = new Date();
         const overdueTasks = await Task.countDocuments({
             assignedTo: userId,
-            dueDate: { $lt: currentDate },
-            status: { $ne: 'terminé' },
+            dueDate: { $lt: currentDate },  // FIX: was 'deadline'
+            status: { $ne: 'done' },        // FIX: was 'terminé'
             project: { $in: projectIds }
         });
 
-        // 5. Tasks in progress sorted by priority (highest first) then due date (earliest first)
+        // 5. Tasks in progress sorted by priority then due date
         const tasksInProgress = await Task.find({
             assignedTo: userId,
-            status: 'en cours',
+            status: 'in progress',      // FIX: was 'en cours'
             project: { $in: projectIds }
         })
         .populate('project', 'title')
-        .sort({ 
-            priority: -1,  // high = 3, medium = 2, low = 1 (depending on schema)
-            dueDate: 1      // ascending = earliest first
-        })
-        .limit(10); // Limit to 10 most important tasks
+        .sort({ dueDate: 1 })
+        .limit(10);
 
-        // 6. Alternative: Using aggregation pipeline (as required by project spec)
+        // 6. Aggregation pipeline metrics
         const aggregationMetrics = await Task.aggregate([
             {
                 $match: {
@@ -78,21 +68,18 @@ router.get('/', protect, async (req, res) => {
                     _id: null,
                     totalAssigned: { $sum: 1 },
                     completed: {
-                        $sum: {
-                            $cond: [{ $eq: ['$status', 'terminé'] }, 1, 0]
-                        }
+                        $sum: { $cond: [{ $eq: ['$status', 'done'] }, 1, 0] }  // FIX: was 'terminé'
                     },
                     overdue: {
                         $sum: {
                             $cond: [
                                 {
                                     $and: [
-                                        { $lt: ['$dueDate', currentDate] },
-                                        { $ne: ['$status', 'terminé'] }
+                                        { $lt: ['$dueDate', currentDate] },     // FIX: was '$deadline'
+                                        { $ne: ['$status', 'done'] }            // FIX: was 'terminé'
                                     ]
                                 },
-                                1,
-                                0
+                                1, 0
                             ]
                         }
                     }
@@ -100,28 +87,25 @@ router.get('/', protect, async (req, res) => {
             }
         ]);
 
-        // Response with all metrics
         res.json({
             success: true,
-            metrics: {
-                activeProjects: activeProjects,
-                assignedTasks: assignedTasks,
-                completedTasks: completedTasks,
-                overdueTasks: overdueTasks,
-                tasksInProgress: tasksInProgress.map(task => ({
-                    id: task._id,
-                    title: task.title,
-                    status: task.status,
-                    priority: task.priority,
-                    dueDate: task.dueDate,
-                    projectName: task.project?.title || 'Unknown Project'
-                })),
-                // Aggregation pipeline results (alternative calculation)
-                aggregationSummary: aggregationMetrics[0] || {
-                    totalAssigned: assignedTasks,
-                    completed: completedTasks,
-                    overdue: overdueTasks
-                }
+            activeProjects,
+            assignedTasks,
+            completedTasks,
+            overdueTasks,
+            tasksInProgress: tasksInProgress.map(task => ({
+                id: task._id,
+                title: task.title,
+                status: task.status,
+                priority: task.priority,
+                dueDate: task.dueDate,
+                deadline: task.dueDate,   // alias for frontend compatibility
+                projectName: task.project?.title || 'Unknown Project'
+            })),
+            aggregationSummary: aggregationMetrics[0] || {
+                totalAssigned: assignedTasks,
+                completed: completedTasks,
+                overdue: overdueTasks
             }
         });
 
@@ -135,7 +119,6 @@ router.get('/', protect, async (req, res) => {
 });
 
 // @route   GET /api/dashboard/stats
-// @desc    Get simplified stats (lightweight version)
 // @access  Private
 router.get('/stats', protect, async (req, res) => {
     try {
@@ -147,37 +130,21 @@ router.get('/stats', protect, async (req, res) => {
 
         const projectIds = userProjects.map(p => p._id);
 
-        // Using aggregation pipeline as required by project spec
         const stats = await Task.aggregate([
-            {
-                $match: {
-                    assignedTo: userId,
-                    project: { $in: projectIds }
-                }
-            },
+            { $match: { assignedTo: userId, project: { $in: projectIds } } },
             {
                 $facet: {
                     totalTasks: [{ $count: 'count' }],
                     completedTasks: [
-                        { $match: { status: 'terminé' } },
+                        { $match: { status: 'done' } },  // FIX: was 'terminé'
                         { $count: 'count' }
                     ],
                     overdueTasks: [
-                        {
-                            $match: {
-                                dueDate: { $lt: new Date() },
-                                status: { $ne: 'terminé' }
-                            }
-                        },
+                        { $match: { dueDate: { $lt: new Date() }, status: { $ne: 'done' } } }, // FIX
                         { $count: 'count' }
                     ],
                     byPriority: [
-                        {
-                            $group: {
-                                _id: '$priority',
-                                count: { $sum: 1 }
-                            }
-                        }
+                        { $group: { _id: '$priority', count: { $sum: 1 } } }
                     ]
                 }
             }
@@ -201,10 +168,8 @@ router.get('/stats', protect, async (req, res) => {
 
     } catch (error) {
         console.error('Dashboard stats error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error'
-        });
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 
+module.exports = router;  // FIX: was missing!
