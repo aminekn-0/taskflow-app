@@ -3,24 +3,24 @@
  * Handles login + dashboard rendering via a single Axios call to GET /api/dashboard
  */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'http://127.0.0.1:5000/api';
 
 // ──────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────
 const $ = id => document.getElementById(id);
-const token = () => localStorage.getItem('tf_token');
+const token = () => localStorage.getItem('token');
 const user  = () => {
-  try { return JSON.parse(localStorage.getItem('tf_user')) || {}; } catch { return {}; }
+  try { return JSON.parse(localStorage.getItem('user')) || {}; } catch { return {}; }
 };
 
 function setToken(t, u) {
-  localStorage.setItem('tf_token', t);
-  localStorage.setItem('tf_user', JSON.stringify(u));
+  localStorage.setItem('token', t);
+  localStorage.setItem('user', JSON.stringify(u));
 }
 function clearSession() {
-  localStorage.removeItem('tf_token');
-  localStorage.removeItem('tf_user');
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
 }
 
 function showPage(name) {

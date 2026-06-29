@@ -1,14 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const Task = require("../models/Task");
-const authMiddleware = require("../middleware/auth"); // déjà fait en Fonctionnalité 1
+const Task = require("../src/models/Task");
+const authMiddleware = require("../src/middleware/auth.middleware");
 
 // — Middleware de validation —
 const validateTask = (req, res, next) => {
   const { title, priority, status } = req.body;
   const validPriorities = ["low", "medium", "high"];
-  const validStatuses = ["todo", "inprogress", "done"];
-  const validStatuses = ["todo", "inprogres", "done"];
+  const validStatuses = ["todo", "in progress", "done"];
 
   if (!title || title.trim() === "") {
     return res.status(400).json({ message: "Le titre est obligatoire" });
@@ -27,7 +26,20 @@ const validateTask = (req, res, next) => {
 router.get("/projects/:id/tasks", authMiddleware, async (req, res) => {
   try {
     const tasks = await Task.find({ project: req.params.id })
-      .populate("assignedTo", "name email");
+      .populate("assignedTo", "fullName email");
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// — GET tâches assignées à l'utilisateur connecté —
+// GET /api/tasks/my-tasks
+// IMPORTANT: This route MUST be before /:id, otherwise "my-tasks" is treated as an ID
+router.get('/my-tasks', authMiddleware, async (req, res) => {
+  try {
+    const tasks = await Task.find({ assignedTo: req.user.id })
+      .populate('assignedTo', 'fullName email');
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -67,7 +79,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
 
 // — UPDATE une tâche —
 // PUT /api/tasks/:id
-router.put("/:id", authMiddleware, validateTask, async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const task = await Task.findByIdAndUpdate(
       req.params.id,
@@ -77,6 +89,7 @@ router.put("/:id", authMiddleware, validateTask, async (req, res) => {
         priority: req.body.priority,
         status: req.body.status,
         dueDate: req.body.dueDate,
+        assignedTo: req.body.assignedTo,
       },
       { new: true, runValidators: true }
     );
@@ -120,15 +133,6 @@ router.patch("/:id/status", authMiddleware, async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-});// GET tâches assignées à l'utilisateur connecté
-// GET /api/tasks/my-tasks
-router.get('/my-tasks', authMiddleware, async (req, res) => {
-  try {
-    const tasks = await Task.find({ assignedTo: req.user.id })
-      .populate('assignedTo', 'name email');
-    res.json(tasks);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
 });
+
 module.exports = router;

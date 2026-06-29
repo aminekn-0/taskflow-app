@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <title>TaskFlow - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #f0f4fe 0%, #e9eef8 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: white; padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: bold; color: #0a1c3a; }
+        .logo i { color: #38bdf8; }
+        .nav-links { display: flex; align-items: center; gap: 12px; }
+        .nav-btn {
+            background: #f1f5f9; color: #0a1c3a; border: none;
+            padding: 0.5rem 1rem; border-radius: 2rem;
+            cursor: pointer; font-weight: 600; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: #e2e8f0; }
+        .nav-btn.active { background: #0a1c3a; color: white; }
+        .logout-btn {
+            background: #fff1f2; color: #e53e3e; border: none;
+            padding: 0.5rem 1rem; border-radius: 2rem;
+            cursor: pointer; font-weight: 600; transition: all 0.2s;
+        }
+        .logout-btn:hover { background: #fecdd3; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        .welcome-card {
+            background: linear-gradient(135deg, #0a1c3a, #12315e);
+            border-radius: 1.5rem; padding: 2rem;
+            margin-bottom: 2rem; color: white;
+        }
+        .welcome-card h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .welcome-card p { opacity: 0.8; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem; margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white; border-radius: 1.25rem;
+            padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex; align-items: center; gap: 1rem;
+            transition: all 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .stat-icon {
+            width: 56px; height: 56px; border-radius: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; flex-shrink: 0;
+        }
+        .stat-icon.blue { background: #eff6ff; color: #38bdf8; }
+        .stat-icon.green { background: #f0fdf4; color: #10b981; }
+        .stat-icon.purple { background: #f5f3ff; color: #6366f1; }
+        .stat-icon.orange { background: #fff7ed; color: #f59e0b; }
+        .stat-info h3 { font-size: 2rem; font-weight: 700; color: #0a1c3a; }
+        .stat-info p { color: #5b6e8c; font-size: 0.85rem; margin-top: 0.2rem; }
+        .section-title { color: #0a1c3a; font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; }
+        .tasks-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .task-item {
+            background: white; border-radius: 1rem;
+            padding: 1rem 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.2s;
+        }
+        .task-item:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .task-left { display: flex; align-items: center; gap: 1rem; }
+        .priority-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .priority-high { background: #ef4444; }
+        .priority-medium { background: #f59e0b; }
+        .priority-low { background: #10b981; }
+        .task-title { font-weight: 600; color: #0a1c3a; font-size: 0.95rem; }
+        .task-project { color: #5b6e8c; font-size: 0.8rem; margin-top: 0.2rem; }
+        .task-right { display: flex; align-items: center; gap: 0.75rem; }
+        .task-due { font-size: 0.8rem; color: #94a3b8; }
+        .task-due.late { color: #ef4444; font-weight: 600; }
+        .badge {
+            padding: 0.25rem 0.75rem; border-radius: 2rem;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .badge-todo { background: #f1f5f9; color: #475569; }
+        .badge-progress { background: #eff6ff; color: #3b82f6; }
+        .badge-done { background: #f0fdf4; color: #10b981; }
+        .empty-state {
+            text-align: center; padding: 3rem;
+            background: white; border-radius: 1.5rem;
+        }
+        .empty-state i { font-size: 2.5rem; color: #cbd5e1; margin-bottom: 1rem; }
+        .empty-state p { color: #5b6e8c; }
+        .loading { text-align: center; padding: 3rem; color: #5b6e8c; }
+        .loading i { font-size: 2rem; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>TaskFlow</span>
+    </div>
+    <div class="nav-links">
+        <button class="nav-btn active" onclick="window.location.href='/dashboard.html'">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </button>
+        <button class="nav-btn" onclick="window.location.href='/projects.html'">
+            <i class="fa-solid fa-folder"></i> Projects
+        </button>
+        <button class="nav-btn" onclick="window.location.href='/members.html'">
+            <i class="fa-solid fa-users"></i> Members
+        </button>
+        <span class="nav-btn" style="background:none;cursor:default" id="userName">...</span>
+        <button class="logout-btn" id="logoutBtn">
+            <i class="fa-solid fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="welcome-card">
+        <h1 id="welcomeTitle">Welcome! 🚀</h1>
+        <p>Here's a summary of your activity on TaskFlow</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue"><i class="fa-solid fa-folder"></i></div>
+            <div class="stat-info">
+                <h3 id="statProjects">-</h3>
+                <p>Active Projects</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="fa-solid fa-list-check"></i></div>
+            <div class="stat-info">
+                <h3 id="statTasks">-</h3>
+                <p>Tasks Assigned</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon purple"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="stat-info">
+                <h3 id="statDone">-</h3>
+                <p>Tasks Completed</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="fa-solid fa-clock"></i></div>
+            <div class="stat-info">
+                <h3 id="statLate">-</h3>
+                <p>Tasks Late</p>
+            </div>
+        </div>
+    </div>
+
+    <p class="section-title"><i class="fa-solid fa-bolt" style="color:#38bdf8"></i> My Tasks</p>
+    <div id="tasksContainer">
+        <div class="loading"><i class="fa-solid fa-spinner"></i></div>
+    </div>
+</div>
+
+<script>
+const API_URL = "http://127.0.0.1:5000/api";
+
+function getToken() {
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
+}
+
+async function checkAuth() {
+    const token = getToken();
+    if (!token) { window.location.href = '/index.html'; return; }
+    try {
+        const res = await fetch(`${API_URL}/auth/verify-token`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            const name = data.user.fullName || data.user.email;
+            document.getElementById('userName').textContent = name;
+            document.getElementById('welcomeTitle').textContent = `Welcome back, ${name}! 🚀`;
+        } else {
+            window.location.href = '/index.html';
+        }
+    } catch {
+        window.location.href = '/index.html';
+    }
+}
+
+async function loadDashboard() {
+    const token = getToken();
+    try {
+        const res = await fetch(`${API_URL}/dashboard`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('statProjects').textContent = data.activeProjects ?? 0;
+            document.getElementById('statTasks').textContent = data.assignedTasks ?? 0;
+            document.getElementById('statDone').textContent = data.completedTasks ?? 0;
+            document.getElementById('statLate').textContent = data.lateTasks ?? 0;
+        }
+    } catch (err) {
+        console.error('Dashboard error:', err);
+    }
+}
+
+async function loadMyTasks() {
+    const token = getToken();
+    try {
+        const res = await fetch(`${API_URL}/tasks/my-tasks`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const tasks = await res.json();
+        renderTasks(Array.isArray(tasks) ? tasks : []);
+    } catch (err) {
+        document.getElementById('tasksContainer').innerHTML =
+            `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Error loading tasks</p></div>`;
+    }
+}
+
+function renderTasks(tasks) {
+    const container = document.getElementById('tasksContainer');
+    if (!tasks.length) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fa-solid fa-check-circle"></i>
+                <p>No tasks assigned to you yet</p>
+            </div>`;
+        return;
+    }
+
+    const now = new Date();
+    const badgeClass = { 'todo': 'badge-todo', 'in progress': 'badge-progress', 'done': 'badge-done' };
+    const badgeLabel = { 'todo': 'To Do', 'in progress': 'In Progress', 'done': 'Done' };
+
+    container.innerHTML = `<div class="tasks-list">${tasks.map(t => {
+        const isLate = t.dueDate && new Date(t.dueDate) < now && t.status !== 'done';
+        return `
+        <div class="task-item">
+            <div class="task-left">
+                <div class="priority-dot priority-${t.priority || 'low'}"></div>
+                <div>
+                    <div class="task-title">${t.title}</div>
+                    <div class="task-project"><i class="fa-solid fa-folder"></i> ${t.project?.title || 'Project'}</div>
+                </div>
+            </div>
+            <div class="task-right">
+                ${t.dueDate ? `<span class="task-due ${isLate ? 'late' : ''}">
+                    <i class="fa-solid fa-calendar"></i>
+                    ${new Date(t.dueDate).toLocaleDateString('fr-FR')}
+                    ${isLate ? '⚠️' : ''}
+                </span>` : ''}
+                <span class="badge ${badgeClass[t.status] || 'badge-todo'}">${badgeLabel[t.status] || t.status}</span>
+            </div>
+        </div>`;
+    }).join('')}</div>`;
+}
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/index.html';
+});
+
+checkAuth();
+loadDashboard();
+loadMyTasks();
+</script>
+</body>
+</html>

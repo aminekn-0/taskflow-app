@@ -1,4 +1,6 @@
 const Project = require("../models/Project");
+const User = require("../models/User");
+const Task = require("../models/Task");
 const { logActivity } = require("./activityController");
 
 /**
@@ -96,9 +98,42 @@ const deleteProject = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/projects/:id/members
+ */
+const getProjectMembers = async (req, res) => {
+  try {
+    const users = await User.find({}, "fullName email");
+    const members = users.map(user => ({
+      _id: user._id,
+      name: user.fullName,
+      fullName: user.fullName,
+      email: user.email
+    }));
+    res.json(members);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * GET /api/projects/:id/tasks
+ */
+const getProjectTasks = async (req, res) => {
+  try {
+    const tasks = await Task.find({ project: req.params.id })
+      .populate("assignedTo", "fullName email");
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createProject,
   getProjects,
   updateProject,
-  deleteProject
+  deleteProject,
+  getProjectMembers,
+  getProjectTasks
 };

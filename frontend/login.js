@@ -1,7 +1,7 @@
 // API Configuration
-const API_URL = '/api';  // Nginx proxy will handle routing to backend
+const API_URL = 'http://127.0.0.1:5000/api';
 
-// Axios-like fetch wrapper
+// API wrapper
 const api = {
     async request(endpoint, options = {}) {
         const token = localStorage.getItem('token');
@@ -43,28 +43,22 @@ const api = {
     },
 };
 
-// Check if user is already logged in
+// Check auth
 async function checkAuth() {
     const token = localStorage.getItem('token');
     if (!token) return false;
 
     try {
         const result = await api.get('/auth/verify-token');
-        if (result.success) {
-            // Store user info
-            localStorage.setItem('user', JSON.stringify(result.user));
-            return true;
-        }
-    } catch (error) {
-        console.error('Auth check failed:', error);
-        // Clear invalid token
+        return result.success;
+    } catch (err) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        return false;
     }
-    return false;
 }
 
-// Redirect to home if logged in
+// redirect if logged in
 async function redirectIfLoggedIn() {
     const isLoggedIn = await checkAuth();
     if (isLoggedIn) {
@@ -73,305 +67,128 @@ async function redirectIfLoggedIn() {
 }
 
 (function () {
-    // DOM elements - Login
+
     const loginForm = document.getElementById('loginForm');
     const loginEmail = document.getElementById('loginEmail');
     const loginPasswordInput = document.getElementById('loginPassword');
-    const rememberCheckbox = document.getElementById('rememberCheckbox');
 
-    // DOM elements - Signup
     const signupForm = document.getElementById('signupForm');
     const signupName = document.getElementById('signupName');
     const signupEmail = document.getElementById('signupEmail');
     const signupPassword = document.getElementById('signupPassword');
     const confirmPassword = document.getElementById('confirmPassword');
-    const termsCheckbox = document.getElementById('termsCheckbox');
 
-    // Containers
-    const loginContainer = document.getElementById('loginContainer');
-    const signupContainer = document.getElementById('signupContainer');
-    const loginFormContainer = document.getElementById('loginFormContainer');
-    const signupFormContainer = document.getElementById('signupFormContainer');
-    const switchPromptLogin = document.getElementById('switchPromptLogin');
-    const switchPromptSignup = document.getElementById('switchPromptSignup');
+    const rememberCheckbox = document.getElementById('rememberCheckbox');
 
     const demoInfoDiv = document.getElementById('demoInfo');
 
-    // Helper function to show feedback
     function showFeedbackMessage(message, isError = false) {
-        const originalText = demoInfoDiv.innerHTML;
-        const feedbackSpan = document.createElement('span');
-        feedbackSpan.style.fontWeight = '500';
-        if (isError) {
-            feedbackSpan.style.color = '#c7254e';
-            feedbackSpan.style.backgroundColor = '#fff5f7';
-        } else {
-            feedbackSpan.style.color = '#2c6e2f';
-            feedbackSpan.style.backgroundColor = '#eef9ef';
-        }
-        demoInfoDiv.innerHTML = '';
-        demoInfoDiv.appendChild(feedbackSpan);
-        feedbackSpan.innerHTML = message;
-        demoInfoDiv.style.padding = '0.5rem 0.8rem';
+        demoInfoDiv.innerText = message;
+        demoInfoDiv.style.color = isError ? 'red' : 'green';
+
         setTimeout(() => {
-            if (demoInfoDiv.innerHTML.includes(message)) {
-                demoInfoDiv.innerHTML = originalText;
-                demoInfoDiv.style.padding = '0.5rem';
-            }
+            demoInfoDiv.innerText = '';
         }, 3000);
     }
 
-    // Show loading state
-    function setLoading(button, isLoading, originalText) {
-        if (isLoading) {
-            button.disabled = true;
-            button.textContent = 'Loading...';
-        } else {
-            button.disabled = false;
-            button.textContent = originalText;
-        }
+    function setLoading(btn, loading) {
+        btn.disabled = loading;
+        btn.textContent = loading ? 'Loading...' : btn.dataset.original;
     }
 
-    // SWITCH TO SIGNUP
-    function showSignup() {
-        loginContainer.classList.remove('active');
-        loginFormContainer.classList.remove('active');
-        switchPromptLogin.style.display = 'none';
-
-        signupContainer.classList.add('active');
-        signupFormContainer.classList.add('active');
-        switchPromptSignup.style.display = 'block';
-
-        signupForm.reset();
-    }
-
-    // SWITCH TO LOGIN
-    function showLogin() {
-        signupContainer.classList.remove('active');
-        signupFormContainer.classList.remove('active');
-        switchPromptSignup.style.display = 'none';
-
-        loginContainer.classList.add('active');
-        loginFormContainer.classList.add('active');
-        switchPromptLogin.style.display = 'block';
-
-        loginForm.reset();
-    }
-
-    // Handle Login
-    async function handleLogin(event) {
-        event.preventDefault();
+    // LOGIN
+    async function handleLogin(e) {
+        e.preventDefault();
 
         const email = loginEmail.value.trim();
         const password = loginPasswordInput.value;
-        const remember = rememberCheckbox.checked;
+
         const submitBtn = document.getElementById('loginSubmitBtn');
-        const originalText = submitBtn.textContent;
+        submitBtn.dataset.original = submitBtn.textContent;
 
-        if (!email) {
-            showFeedbackMessage('⚠️ Please enter your email', true);
-            loginEmail.focus();
-            return;
-        }
-        if (!password) {
-            showFeedbackMessage('⚠️ Please enter your password', true);
-            loginPasswordInput.focus();
+        if (!email || !password) {
+            showFeedbackMessage('Fill all fields', true);
             return;
         }
 
-        setLoading(submitBtn, true, originalText);
+        setLoading(submitBtn, true);
 
         try {
-            const result = await api.post('/auth/login', { email, password });
+            const result = await api.post('/auth/login', {
+                email,
+                password
+            });
 
             if (result.success) {
-                // Store token
-                if (remember) {
-                    localStorage.setItem('token', result.token);
-                } else {
-                    sessionStorage.setItem('token', result.token);
-                }
 
-                // Store user info
+                // ✅ FIX IMPORTANT
+                localStorage.setItem('token', result.token);
                 localStorage.setItem('user', JSON.stringify(result.user));
 
-                showFeedbackMessage(`✨ Welcome back, ${result.user.fullName}! Redirecting...`, false);
+                showFeedbackMessage(`Welcome ${result.user.fullName}`);
 
-                // Redirect to home page after short delay
                 setTimeout(() => {
                     window.location.href = '/home.html';
-                }, 1500);
+                }, 1000);
             }
-        } catch (error) {
-            showFeedbackMessage(`❌ Login failed: ${error.message}`, true);
-            setLoading(submitBtn, false, originalText);
+
+        } catch (err) {
+            showFeedbackMessage(err.message, true);
         }
+
+        setLoading(submitBtn, false);
     }
 
-    // Handle Signup
-    async function handleSignup(event) {
-        event.preventDefault();
+    // SIGNUP
+    async function handleSignup(e) {
+        e.preventDefault();
 
         const name = signupName.value.trim();
         const email = signupEmail.value.trim();
         const password = signupPassword.value;
         const confirm = confirmPassword.value;
-        const terms = termsCheckbox.checked;
+
         const submitBtn = document.getElementById('signupSubmitBtn');
-        const originalText = submitBtn.textContent;
+        submitBtn.dataset.original = submitBtn.textContent;
 
-        if (!name) {
-            showFeedbackMessage('⚠️ Please enter your full name', true);
-            signupName.focus();
+        if (!name || !email || !password) {
+            showFeedbackMessage('Fill all fields', true);
             return;
         }
-        if (!email) {
-            showFeedbackMessage('⚠️ Please enter your email address', true);
-            signupEmail.focus();
-            return;
-        }
-        if (!email.includes('@') || !email.includes('.')) {
-            showFeedbackMessage('⚠️ Please enter a valid email address', true);
-            signupEmail.focus();
-            return;
-        }
-        if (!password) {
-            showFeedbackMessage('⚠️ Please create a password', true);
-            signupPassword.focus();
-            return;
-        }
-        if (password.length < 8) {
-            showFeedbackMessage('⚠️ Password must be at least 8 characters', true);
-            signupPassword.focus();
-            return;
-        }
+
         if (password !== confirm) {
-            showFeedbackMessage('⚠️ Passwords do not match', true);
-            confirmPassword.focus();
-            return;
-        }
-        if (!terms) {
-            showFeedbackMessage('⚠️ Please agree to the Terms of Service', true);
+            showFeedbackMessage('Passwords do not match', true);
             return;
         }
 
-        setLoading(submitBtn, true, originalText);
+        setLoading(submitBtn, true);
 
         try {
             const result = await api.post('/auth/register', {
                 fullName: name,
                 email,
-                password,
+                password
             });
 
             if (result.success) {
-                showFeedbackMessage(`🎉 Welcome, ${name}! Account created successfully! Redirecting to login...`, false);
+                showFeedbackMessage('Account created! Please login');
 
-                // Clear form and switch to login after 2 seconds
                 setTimeout(() => {
-                    showLogin();
-                    setLoading(submitBtn, false, originalText);
-                    showFeedbackMessage(`✨ Account created! Please sign in.`, false);
-                }, 2000);
+                    window.location.reload();
+                }, 1000);
             }
-        } catch (error) {
-            showFeedbackMessage(`❌ Signup failed: ${error.message}`, true);
-            setLoading(submitBtn, false, originalText);
+
+        } catch (err) {
+            showFeedbackMessage(err.message, true);
         }
+
+        setLoading(submitBtn, false);
     }
 
-    // Show/Hide Password for Login
-    const showLoginPasswordCheckbox = document.getElementById('showLoginPassword');
-    if (showLoginPasswordCheckbox && loginPasswordInput) {
-        showLoginPasswordCheckbox.addEventListener('change', function () {
-            const type = this.checked ? 'text' : 'password';
-            loginPasswordInput.type = type;
-
-            const icon = this.nextElementSibling.querySelector('i');
-            if (this.checked) {
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-    }
-
-    // Show/Hide Password for Signup
-    const showSignupPasswordCheckbox = document.getElementById('showSignupPassword');
-    const signupPasswordInput = document.getElementById('signupPassword');
-    const signupConfirmInput = document.getElementById('confirmPassword');
-
-    if (showSignupPasswordCheckbox && signupPasswordInput) {
-        showSignupPasswordCheckbox.addEventListener('change', function () {
-            const type = this.checked ? 'text' : 'password';
-            signupPasswordInput.type = type;
-            if (signupConfirmInput) {
-                signupConfirmInput.type = type;
-            }
-
-            const icon = this.nextElementSibling.querySelector('i');
-            if (this.checked) {
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-    }
-
-    // Handle Forgot Password
-    function handleForgotPassword(e) {
-        e.preventDefault();
-        const email = loginEmail.value.trim();
-        if (email && email.includes('@')) {
-            showFeedbackMessage(`📧 Reset link would be sent to ${email}`, false);
-        } else {
-            showFeedbackMessage(`🔐 Please enter your email address first`, true);
-            loginEmail.focus();
-        }
-    }
-
-    const forgotLink = document.getElementById('forgotPasswordLink');
-    if (forgotLink) {
-        forgotLink.addEventListener('click', handleForgotPassword);
-    }
-
-    // Event Listeners
+    // events
     loginForm.addEventListener('submit', handleLogin);
     signupForm.addEventListener('submit', handleSignup);
 
-    // Switch buttons
-    const switchToSignupLink = document.getElementById('switchToSignupLink');
-    const switchToLoginLink = document.getElementById('switchToLoginLink');
-    const goToSignupBtn = document.getElementById('goToSignupBtn');
-    const goToLoginBtn = document.getElementById('goToLoginBtn');
-
-    if (switchToSignupLink) switchToSignupLink.addEventListener('click', showSignup);
-    if (switchToLoginLink) switchToLoginLink.addEventListener('click', showLogin);
-    if (goToSignupBtn) goToSignupBtn.addEventListener('click', showSignup);
-    if (goToLoginBtn) goToLoginBtn.addEventListener('click', showLogin);
-
-    // Terms & Privacy links (demo)
-    const termsLink = document.getElementById('termsLink');
-    const privacyLink = document.getElementById('privacyLink');
-
-    if (termsLink) {
-        termsLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showFeedbackMessage(`📜 Terms of Service would open here`, false);
-        });
-    }
-
-    if (privacyLink) {
-        privacyLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showFeedbackMessage(`🔒 Privacy Policy would open here`, false);
-        });
-    }
-
-    // Check if already logged in
     redirectIfLoggedIn();
+
 })();

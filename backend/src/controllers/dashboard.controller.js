@@ -3,7 +3,8 @@ const Task = require("../models/Task");
 
 const getDashboard = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const mongoose = require("mongoose");
+    const userId = new mongoose.Types.ObjectId(req.user.id);
 
     // =========================
     // 1. Active projects count
@@ -47,7 +48,7 @@ const getDashboard = async (req, res) => {
       {
         $match: {
           assignedTo: userId,
-          status: "terminé",
+          status: "done",
         },
       },
       {
@@ -65,8 +66,8 @@ const getDashboard = async (req, res) => {
       {
         $match: {
           assignedTo: userId,
-          status: { $ne: "terminé" },
-          deadline: { $lt: new Date() },
+          status: { $ne: "done" },
+          dueDate: { $lt: new Date() },
         },
       },
       {
@@ -84,13 +85,13 @@ const getDashboard = async (req, res) => {
       {
         $match: {
           assignedTo: userId,
-          status: "en cours",
+          status: "in progress",
         },
       },
       {
         $sort: {
-          priority: -1, // haute > moyenne > basse (depends on your enum ordering)
-          deadline: 1,
+          priority: -1,
+          dueDate: 1,
         },
       },
     ]);

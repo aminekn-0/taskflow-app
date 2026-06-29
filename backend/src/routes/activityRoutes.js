@@ -1,5 +1,5 @@
 const express = require("express");
-const authMiddleware = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middleware/auth.middleware");
 const { getActivities } = require("../controllers/activityController");
 
 const router = express.Router({ mergeParams: true }); // needed to access :id from parent

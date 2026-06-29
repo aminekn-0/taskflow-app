@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <title>TaskFlow - Members</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #f0f4fe 0%, #e9eef8 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: white; padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: bold; color: #0a1c3a; }
+        .logo i { color: #38bdf8; }
+        .nav-links { display: flex; align-items: center; gap: 12px; }
+        .nav-btn {
+            background: #f1f5f9; color: #0a1c3a; border: none;
+            padding: 0.5rem 1rem; border-radius: 2rem;
+            cursor: pointer; font-weight: 600; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: #e2e8f0; }
+        .nav-btn.active { background: #0a1c3a; color: white; }
+        .logout-btn {
+            background: #fff1f2; color: #e53e3e; border: none;
+            padding: 0.5rem 1rem; border-radius: 2rem;
+            cursor: pointer; font-weight: 600; transition: all 0.2s;
+        }
+        .logout-btn:hover { background: #fecdd3; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 2rem;
+        }
+        .page-header h1 { color: #0a1c3a; font-size: 1.8rem; }
+        .page-header p { color: #5b6e8c; margin-top: 0.25rem; }
+        .project-selector {
+            background: white; border-radius: 1.25rem;
+            padding: 1.5rem; margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .project-selector label { font-weight: 600; color: #0a1c3a; display: block; margin-bottom: 0.5rem; }
+        .project-selector select {
+            width: 100%; padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0; border-radius: 0.75rem;
+            font-size: 0.95rem; color: #0a1c3a; outline: none;
+            transition: border-color 0.2s; font-family: inherit;
+        }
+        .project-selector select:focus { border-color: #38bdf8; }
+        .invite-card {
+            background: white; border-radius: 1.25rem;
+            padding: 1.5rem; margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .invite-card h3 { color: #0a1c3a; margin-bottom: 1rem; font-size: 1rem; }
+        .invite-row { display: flex; gap: 1rem; }
+        .invite-row input {
+            flex: 1; padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0; border-radius: 0.75rem;
+            font-size: 0.95rem; color: #0a1c3a; outline: none;
+            transition: border-color 0.2s; font-family: inherit;
+        }
+        .invite-row input:focus { border-color: #38bdf8; }
+        .btn-primary {
+            background: #0a1c3a; color: white; border: none;
+            padding: 0.75rem 1.5rem; border-radius: 2rem;
+            cursor: pointer; font-weight: 600; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 8px; transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-primary:hover { background: #12315e; }
+        .invite-error { color: #e53e3e; font-size: 0.85rem; margin-top: 0.5rem; display: none; }
+        .invite-success { color: #10b981; font-size: 0.85rem; margin-top: 0.5rem; display: none; }
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+        .member-card {
+            background: white; border-radius: 1.25rem;
+            padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.2s;
+        }
+        .member-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .member-left { display: flex; align-items: center; gap: 1rem; }
+        .member-avatar {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8, #0a1c3a);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .member-name { font-weight: 700; color: #0a1c3a; }
+        .member-email { color: #5b6e8c; font-size: 0.85rem; margin-top: 0.2rem; }
+        .owner-badge {
+            background: #fef3c7; color: #92400e;
+            padding: 0.2rem 0.6rem; border-radius: 2rem;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .btn-remove {
+            background: #fff1f2; color: #e53e3e; border: none;
+            padding: 0.5rem 0.75rem; border-radius: 2rem;
+            cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+        }
+        .btn-remove:hover { background: #fecdd3; }
+        .empty-state {
+            text-align: center; padding: 3rem;
+            background: white; border-radius: 1.5rem;
+        }
+        .empty-state i { font-size: 2.5rem; color: #cbd5e1; margin-bottom: 1rem; }
+        .empty-state p { color: #5b6e8c; }
+        .loading { text-align: center; padding: 3rem; color: #5b6e8c; }
+        .loading i { font-size: 2rem; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>TaskFlow</span>
+    </div>
+    <div class="nav-links">
+        <button class="nav-btn" onclick="window.location.href='/dashboard.html'">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </button>
+        <button class="nav-btn" onclick="window.location.href='/projects.html'">
+            <i class="fa-solid fa-folder"></i> Projects
+        </button>
+        <button class="nav-btn active" onclick="window.location.href='/members.html'">
+            <i class="fa-solid fa-users"></i> Members
+        </button>
+        <span class="nav-btn" style="background:none;cursor:default" id="userName">...</span>
+        <button class="logout-btn" id="logoutBtn">
+            <i class="fa-solid fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <div>
+            <h1>Project Members</h1>
+            <p>Manage your team members per project</p>
+        </div>
+    </div>
+
+    <!-- Project selector -->
+    <div class="project-selector">
+        <label><i class="fa-solid fa-folder" style="color:#38bdf8"></i> Select a Project</label>
+        <select id="projectSelect" onchange="onProjectChange()">
+            <option value="">-- Choose a project --</option>
+        </select>
+    </div>
+
+    <!-- Invite form (only for owner) -->
+    <div class="invite-card" id="inviteCard" style="display:none">
+        <h3><i class="fa-solid fa-user-plus" style="color:#38bdf8;margin-right:6px"></i>Invite a Member</h3>
+        <div class="invite-row">
+            <input type="email" id="inviteEmail" placeholder="member@example.com">
+            <button class="btn-primary" id="inviteBtn">
+                <i class="fa-solid fa-paper-plane"></i> Invite
+            </button>
+        </div>
+        <p class="invite-error" id="inviteError"></p>
+        <p class="invite-success" id="inviteSuccess"></p>
+    </div>
+
+    <!-- Members list -->
+    <div id="membersContainer">
+        <div class="empty-state">
+            <i class="fa-solid fa-folder-open"></i>
+            <p>Select a project to view its members</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_URL = "http://127.0.0.1:5000/api";
+let currentUser = null;
+let currentProject = null;
+
+function getToken() {
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
+}
+
+async function checkAuth() {
+    const token = getToken();
+    if (!token) { window.location.href = '/index.html'; return; }
+    try {
+        const res = await fetch(`${API_URL}/auth/verify-token`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentUser = data.user;
+            document.getElementById('userName').textContent = data.user.fullName || data.user.email;
+        } else {
+            window.location.href = '/index.html';
+        }
+    } catch {
+        window.location.href = '/index.html';
+    }
+}
+
+async function loadProjects() {
+    const token = getToken();
+    try {
+        const res = await fetch(`${API_URL}/projects`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const projects = Array.isArray(data) ? data : (data.data || []);
+        const select = document.getElementById('projectSelect');
+        projects.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p._id;
+            opt.textContent = p.title;
+            opt.dataset.owner = p.owner?._id || p.owner;
+            select.appendChild(opt);
+        });
+    } catch (err) {
+        console.error('Error loading projects:', err);
+    }
+}
+
+function onProjectChange() {
+    const select = document.getElementById('projectSelect');
+    const projectId = select.value;
+    if (!projectId) {
+        document.getElementById('inviteCard').style.display = 'none';
+        document.getElementById('membersContainer').innerHTML = `
+            <div class="empty-state">
+                <i class="fa-solid fa-folder-open"></i>
+                <p>Select a project to view its members</p>
+            </div>`;
+        return;
+    }
+
+    const selectedOption = select.options[select.selectedIndex];
+    const ownerId = selectedOption.dataset.owner;
+    const isOwner = currentUser && (currentUser.id === ownerId || currentUser._id === ownerId);
+
+    currentProject = { id: projectId, ownerId };
+    document.getElementById('inviteCard').style.display = isOwner ? 'block' : 'none';
+    loadMembers(projectId);
+}
+
+async function loadMembers(projectId) {
+    const token = getToken();
+    document.getElementById('membersContainer').innerHTML =
+        `<div class="loading"><i class="fa-solid fa-spinner"></i></div>`;
+    try {
+        const res = await fetch(`${API_URL}/projects/${projectId}/members`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const members = data.members || [];
+        const owner = data.owner || null;
+        renderMembers(members, owner);
+    } catch (err) {
+        document.getElementById('membersContainer').innerHTML =
+            `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>Error loading members</p></div>`;
+    }
+}
+
+function renderMembers(members, owner) {
+    const container = document.getElementById('membersContainer');
+    const isOwner = currentUser && owner &&
+        (currentUser.id === owner._id || currentUser._id === owner._id);
+
+    const allMembers = [];
+
+    // Owner first
+    if (owner) {
+        allMembers.push({ ...owner, isOwner: true });
+    }
+    // Members
+    members.forEach(m => allMembers.push({ ...m, isOwner: false }));
+
+    if (!allMembers.length) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fa-solid fa-users"></i>
+                <p>No members in this project yet</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = `<div class="members-grid">${allMembers.map(m => {
+        const initials = (m.fullName || m.email || '?').charAt(0).toUpperCase();
+        return `
+        <div class="member-card">
+            <div class="member-left">
+                <div class="member-avatar">${initials}</div>
+                <div>
+                    <div class="member-name">${m.fullName || 'Unknown'}</div>
+                    <div class="member-email">${m.email || ''}</div>
+                </div>
+            </div>
+            ${m.isOwner
+                ? `<span class="owner-badge"><i class="fa-solid fa-crown"></i> Owner</span>`
+                : isOwner
+                    ? `<button class="btn-remove" onclick="removeMember('${m._id}')">
+                        <i class="fa-solid fa-user-minus"></i> Remove
+                       </button>`
+                    : ''
+            }
+        </div>`;
+    }).join('')}</div>`;
+}
+
+async function inviteMember() {
+    const email = document.getElementById('inviteEmail').value.trim();
+    const errEl = document.getElementById('inviteError');
+    const sucEl = document.getElementById('inviteSuccess');
+    errEl.style.display = 'none';
+    sucEl.style.display = 'none';
+
+    if (!email) { errEl.textContent = 'Email is required'; errEl.style.display = 'block'; return; }
+    if (!currentProject) return;
+
+    const token = getToken();
+    try {
+        const res = await fetch(`${API_URL}/projects/${currentProject.id}/members`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Error inviting member');
+        sucEl.textContent = 'Member invited successfully!';
+        sucEl.style.display = 'block';
+        document.getElementById('inviteEmail').value = '';
+        loadMembers(currentProject.id);
+    } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+    }
+}
+
+async function removeMember(memberId) {
+    if (!confirm('Remove this member from the project?')) return;
+    const token = getToken();
+    try {
+        await fetch(`${API_URL}/projects/${currentProject.id}/members/${memberId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        loadMembers(currentProject.id);
+    } catch (err) {
+        alert('Error removing member');
+    }
+}
+
+document.getElementById('inviteBtn').addEventListener('click', inviteMember);
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/index.html';
+});
+
+checkAuth().then(() => {
+    loadProjects();
+});
+</script>
+</body>
+</html>
