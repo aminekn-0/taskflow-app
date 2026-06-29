@@ -190,5 +190,33 @@ async function redirectIfLoggedIn() {
     signupForm.addEventListener('submit', handleSignup);
 
     redirectIfLoggedIn();
+    // Switch between login and signup
+const goToSignupBtn = document.getElementById('goToSignupBtn');
+const goToLoginBtn = document.getElementById('goToLoginBtn');
+const switchToSignupLink = document.getElementById('switchToSignupLink');
+const switchToLoginLink = document.getElementById('switchToLoginLink');
+
+function showSignup() {
+    document.getElementById('loginFormContainer').classList.remove('active');
+    document.getElementById('signupFormContainer').classList.add('active');
+    document.getElementById('loginContainer').classList.remove('active');
+    document.getElementById('signupContainer').classList.add('active');
+    document.getElementById('switchPromptLogin').style.display = 'none';
+    document.getElementById('switchPromptSignup').style.display = 'block';
+}
+
+function showLogin() {
+    document.getElementById('signupFormContainer').classList.remove('active');
+    document.getElementById('loginFormContainer').classList.add('active');
+    document.getElementById('signupContainer').classList.remove('active');
+    document.getElementById('loginContainer').classList.add('active');
+    document.getElementById('switchPromptSignup').style.display = 'none';
+    document.getElementById('switchPromptLogin').style.display = 'block';
+}
+
+goToSignupBtn.addEventListener('click', showSignup);
+goToLoginBtn.addEventListener('click', showLogin);
+switchToSignupLink.addEventListener('click', showSignup);
+switchToLoginLink.addEventListener('click', showLogin);
 
 })();
